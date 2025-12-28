@@ -33,7 +33,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let valid_actions = ["presync", "build", "unitest", "deploy", "verify"];
     if !valid_actions.contains(&args.action.as_str()) {
         eprintln!("Invalid action '{}'. Must be one of: {}", args.action, valid_actions.join(", "));
-        process::exit(1);
+        process::exit(1);           // TODO: this make the command is stderr
     }
 
     // Prepare request
@@ -68,7 +68,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             process::exit(1);
         }
     } else {
-        eprintln!("HTTP error {}: {}", resp.status(), resp.text().await?);
+        // eprintln!("HTTP error {}: {}", resp.status(), resp.text().await?);
+        // eprintln!("error {}: {}", resp.status(), resp.text().await?);
+        eprintln!("error -->>> {}", resp.text().await?);
         process::exit(1);
     }
 

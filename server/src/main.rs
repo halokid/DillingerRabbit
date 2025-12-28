@@ -18,7 +18,8 @@ struct Request {
 async fn run_command(cmd: &str, path: Option<&str>) -> Result<String, String> {
   let command = format!(
     "cd {} && {}",
-    path.unwrap_or("/path/to/shell_foldr"), // 默认路径，应当修改为实际项目路径
+    // path.unwrap_or("/path/to/shell_foldr"), // 默认路径，应当修改为实际项目路径
+    path.unwrap_or("./"), // 默认路径，应当修改为实际项目路径
     cmd
   );
 
@@ -31,11 +32,23 @@ async fn run_command(cmd: &str, path: Option<&str>) -> Result<String, String> {
     .await
     .map_err(|e| format!("Failed to execute command: {}", e))?;
 
-  if output.status.success() {
-    Ok(String::from_utf8_lossy(&output.stdout).to_string())
-  } else {
+  println!("stdout -->>> {}", String::from_utf8_lossy(&output.stdout).to_string());
+  println!("stderr -->>> {}", String::from_utf8_lossy(&output.stderr).to_string());
+  let stderr =  String::from_utf8_lossy(&output.stderr).to_string();
+
+  // TODO: if need check stderr as condition is `Ok` or `Err`, can check the `stderr` data, if has data, then fail
+  if stderr != "" {
     Err(String::from_utf8_lossy(&output.stderr).to_string())
+  } else {
+    Ok(String::from_utf8_lossy(&output.stdout).to_string())
   }
+
+
+  // if output.status.success() {
+  //   Ok(String::from_utf8_lossy(&output.stdout).to_string())
+  // } else {
+  //   Err(String::from_utf8_lossy(&output.stderr).to_string())
+  // }
 }
 
 async fn presync(Json(req): Json<Request>) -> (StatusCode, Json<Response>) {
@@ -47,7 +60,8 @@ async fn presync(Json(req): Json<Request>) -> (StatusCode, Json<Response>) {
         StatusCode::OK,
         Json(Response {
           success: true,
-          message: format!("Presync successful: {}", output),
+          // message: format!("Presync successful: {}", output),
+          message: format!("{}", "-->>> Presync successful"),
         }),
       )
     }
@@ -57,7 +71,8 @@ async fn presync(Json(req): Json<Request>) -> (StatusCode, Json<Response>) {
         StatusCode::INTERNAL_SERVER_ERROR,
         Json(Response {
           success: false,
-          message: format!("Presync failed: {}", e),
+          // message: format!("Presync failed: {}", e),
+          message: format!("{}", "-->>> Presync failed"),
         }),
       )
     }
@@ -71,14 +86,16 @@ async fn build(Json(req): Json<Request>) -> (StatusCode, Json<Response>) {
       StatusCode::OK,
       Json(Response {
         success: true,
-        message: format!("Build successful: {}", output),
+        // message: format!("Build successful: {}", output),
+        message: format!("{}", "-->>> Build successful"),
       }),
     ),
     Err(e) => (
       StatusCode::INTERNAL_SERVER_ERROR,
       Json(Response {
         success: false,
-        message: format!("Build failed: {}", e),
+        // message: format!("Build failed: {}", e),
+        message: format!("{}", "-->>> Build failed"),
       }),
     ),
   }
@@ -91,14 +108,16 @@ async fn unitest(Json(req): Json<Request>) -> (StatusCode, Json<Response>) {
       StatusCode::OK,
       Json(Response {
         success: true,
-        message: format!("Unitest successful: {}", output),
+        // message: format!("Unitest successful: {}", output),
+        message: format!("{}", "-->>> Unitest successful"),
       }),
     ),
     Err(e) => (
       StatusCode::INTERNAL_SERVER_ERROR,
       Json(Response {
         success: false,
-        message: format!("Unitest failed: {}", e),
+        // message: format!("Unitest failed: {}", e),
+        message: format!("{}", "-->>> Unitest failed"),
       }),
     ),
   }
@@ -111,14 +130,16 @@ async fn deploy(Json(req): Json<Request>) -> (StatusCode, Json<Response>) {
       StatusCode::OK,
       Json(Response {
         success: true,
-        message: format!("Deploy successful: {}", output),
+        // message: format!("Deploy successful: {}", output),
+        message: format!("{}", "-->>> Deploy successful"),
       }),
     ),
     Err(e) => (
       StatusCode::INTERNAL_SERVER_ERROR,
       Json(Response {
         success: false,
-        message: format!("Deploy failed: {}", e),
+        // message: format!("Deploy failed: {}", e),
+        message: format!("{}", "-->>> Deploy failed"),
       }),
     ),
   }
